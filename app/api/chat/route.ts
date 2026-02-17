@@ -1,4 +1,5 @@
 import { api } from "@/convex/_generated/api";
+import { Id } from "@/convex/_generated/dataModel";
 import { google } from "@ai-sdk/google";
 import { stepCountIs, streamText, tool } from "ai";
 import { ConvexHttpClient } from "convex/browser";
@@ -37,7 +38,7 @@ const getSalesInfo = tool({
   execute: async () => {
     console.log("Consulta de todas ventas");
     const sales = await convex.query(api.functions.orders.listOrdersWithClient);
-    console.log(sales)
+    console.log(sales);
     return sales;
   },
 });
@@ -49,7 +50,7 @@ const getProducts = tool({
   execute: async () => {
     console.log("Consulta de los productos");
     const products = await convex.query(api.functions.products.getProducts);
-    console.log(products)
+    console.log(products);
     return products;
   },
 });
@@ -61,8 +62,49 @@ const getClaims = tool({
   execute: async () => {
     console.log("Consulta de los reclamos");
     const claims = await convex.query(api.functions.claims.listClaimWithClientAndOrder);
-    console.log(claims)
+    console.log(claims);
     return claims;
+  },
+});
+
+const createProducts = tool({
+  description: "Crear un nuevo producto ",
+  inputSchema: z.object({
+    name: z.string(),
+    description: z.string(),
+    price: z.number(),
+    stock: z.number(),
+    sku: z.string(),
+    createdAt: z.number(),
+    active: z.boolean(),
+  }),
+
+  execute: async ({name,description,price, stock, sku, createdAt, active }) => {
+    console.log("Creación de un producto");
+    const resultProducts = await convex.mutation(api.functions.products.createProducts, {name,description,price, stock, sku, createdAt, active });
+    console.log(resultProducts);
+    return resultProducts;
+  },
+});
+
+const updateProduct = tool({
+  description: "Editar un producto ",
+  inputSchema: z.object({
+    id: z.string(),
+    name: z.string(),
+    description: z.string(),
+    price: z.number(),
+    stock: z.number(),
+    sku: z.string(),
+    createdAt: z.number(),
+    active: z.boolean(),
+  }),
+
+  execute: async ({id, name,description,price, stock, sku, createdAt, active }) => {
+    console.log("Editar un producto");
+    const resultProducts = await convex.mutation(api.functions.products.updateProduct, {id: id as Id<"products">, name,description,price, stock, sku, createdAt, active });
+    console.log(resultProducts);
+    return resultProducts;
   },
 });
 
@@ -93,7 +135,9 @@ export async function POST(req: Request) {
       getUserByFullName: getUserByFullNameTool,
       getSalesInfo: getSalesInfo,
       getProducts: getProducts,
-      getClaims: getClaims
+      getClaims: getClaims,
+      createProducts: createProducts,
+      updateProduct: updateProduct
     },
     toolChoice: "auto",
     // En AI SDK v6 el loop de tools se controla con stopWhen.
