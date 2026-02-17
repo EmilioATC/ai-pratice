@@ -8,13 +8,25 @@
  * @module
  */
 
+import type * as functions_claims from "../functions/claims.js";
+import type * as functions_clients from "../functions/clients.js";
+import type * as functions_orders from "../functions/orders.js";
+import type * as functions_products from "../functions/products.js";
+import type * as functions_usuarios from "../functions/usuarios.js";
+
 import type {
   ApiFromModules,
   FilterApi,
   FunctionReference,
 } from "convex/server";
 
-declare const fullApi: ApiFromModules<{}>;
+declare const fullApi: ApiFromModules<{
+  "functions/claims": typeof functions_claims;
+  "functions/clients": typeof functions_clients;
+  "functions/orders": typeof functions_orders;
+  "functions/products": typeof functions_products;
+  "functions/usuarios": typeof functions_usuarios;
+}>;
 
 /**
  * A utility for referencing Convex functions in your app's public API.
